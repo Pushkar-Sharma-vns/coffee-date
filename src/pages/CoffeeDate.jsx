@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import '../styles/CoffeeDate.css'
+import axios from 'axios';
 
 // Import your local images
 import herPhoto from '../assets/her_photo.jpeg';
@@ -15,19 +16,44 @@ export default function CoffeeDateInvite() {
     const [optionalNote, setOptionalNote] = useState('');
     const [showModal, setShowModal] = useState(false);
 
-    const handleSubmit = () => {
+    // New state clearly to control customized appreciation message:
+    const [successMessage, setSuccessMessage] = useState('');
+
+    const handleSubmit = async () => {
         if (!favoriteCafe.trim()) {
         alert("Please enter your favorite café!");
         return;
         }
 
         console.log('Favorite Cafe:', favoriteCafe);
+        console.log('Timings: ', timing)
         console.log('Note:', optionalNote);
 
-        setResponse('sure');
-        setShowModal(false);
+        const API_ENDPOINT = "https://devapi.acrodocz.com/accepted-coffee";
+        try {
+            const response = await axios.post(API_ENDPOINT, {
+              cafe: favoriteCafe,
+              timing: timing,        // optional, include if backend accepts it
+              note: optionalNote      // optional, include if backend accepts it
+            });
         
-        // Optional: perform additional logic (e.g. API call)
+            console.log('API Response:', response.data);
+            // alert("Thanks for accepting coffee invite!");
+
+             // Update state clearly with personalized appreciation message ✅
+            setSuccessMessage(`You're amazing Tanisha! "${favoriteCafe}" sounds lovely. Looking forward to our coffee chat! ☕❤️`);
+
+            // Auto-Close modal after 3 seconds clearly ✅
+            setTimeout(() => {
+                setShowModal(false);    // close the modal
+                setSuccessMessage('');  // clear success message 
+            }, 5000);
+
+        
+        } catch (error) {
+            console.error('Axios error:', error);
+            alert('🐛 Something went wrong, please check console.');
+        }
     };
   
     return (
@@ -55,11 +81,11 @@ export default function CoffeeDateInvite() {
           <div className="photo-grid photo-grid-top">
             <div className="photo-container">
               <img src={myPhoto} alt="Me" className="grid-photo" />
-              <div class="note-overlay">What does Pushkar want?</div>
+              <div className="note-overlay">What does Pushkar want?</div>
             </div>
             <div className="photo-container">
               <img src={coffeeCupImg} alt="Coffee cup with hearts" className="grid-photo" />
-              <div class="note-overlay">I think Pushkar wants to drink a coffee with Tanisha!</div>
+              <div className="note-overlay">I think Pushkar wants to drink a coffee with Tanisha!</div>
             </div>
           </div>
 
@@ -70,11 +96,11 @@ export default function CoffeeDateInvite() {
           <div className="photo-grid photo-grid-bottom">
             <div className="photo-container">
               <img src={heartCoffeeImg} alt="Coffee with heart" className="grid-photo" />
-              <div class="note-overlay">I think Pushkar wants to go on Coffee date with Tanisha, but will she go on a date with Pushkar?!</div>
+              <div className="note-overlay">I think Pushkar wants to go on Coffee date with Tanisha, but will she go on a date with Pushkar?!</div>
             </div>
             <div className="photo-container">
               <img src={herPhoto} alt="Her" className="grid-photo" />
-              <div class="note-overlay">Tanisha here and I will decide whether to go or not with this Banarasi guy...</div>
+              <div className="note-overlay">Tanisha here and I will decide whether to go or not with this Banarasi guy...</div>
             </div>
           </div>
   
@@ -111,37 +137,48 @@ export default function CoffeeDateInvite() {
                     exit={{ scale: 0.8, opacity: 0 }}
                     transition={{ duration: 0.3 }}
                     >
-                    <h2 className="modal-title">Your Favorite Café? ☕</h2>
-                    <input
-                        className="input-cafe"
-                        placeholder="Name of your favorite café"
-                        value={favoriteCafe}
-                        onChange={(e) => setFavoriteCafe(e.target.value)}
-                    />
-                    <input
-                        className="input-cafe"
-                        placeholder="When will you be free?"
-                        value={timing}
-                        onChange={(e) => setTiming(e.target.value)}
-                    />
-                    <textarea
-                        className="input-note"
-                        placeholder="Optional note for Pushkar ☺️"
-                        value={optionalNote}
-                        onChange={(e) => setOptionalNote(e.target.value)}
-                    />
-                    <div className="modal-actions">
-                        <button className="submit-button" onClick={handleSubmit}>
-                        Submit
-                        </button>
-                        <button className="close-button" onClick={() => setShowModal(false)}>
-                        Cancel
-                        </button>
-                    </div>
+                    {/* Conditional display of form or appreciation message clearly ✅ */}
+                    {!successMessage ? (
+                        <>
+                        <h2 className="modal-title">Your Favorite Café? ☕</h2>
+                        <input
+                            className="input-cafe"
+                            placeholder="Name of your favorite café"
+                            value={favoriteCafe}
+                            onChange={(e) => setFavoriteCafe(e.target.value)}
+                        />
+                        <input
+                            className="input-cafe"
+                            placeholder="When will you be free?"
+                            value={timing}
+                            onChange={(e) => setTiming(e.target.value)}
+                        />
+                        <textarea
+                            className="input-note"
+                            placeholder="Optional note for Pushkar ☺️"
+                            value={optionalNote}
+                            onChange={(e) => setOptionalNote(e.target.value)}
+                        />
+                        <div className="modal-actions">
+                            <button className="submit-button" onClick={handleSubmit}>
+                            Accept Invite
+                            </button>
+                            <button className="close-button" onClick={() => setShowModal(false)}>
+                            Cancel
+                            </button>
+                        </div>
+                        </>
+                    ) : (
+                        // ✅ Personalized Appreciation Message Display for 3 seconds clearly
+                        <div className="success-message">
+                            {successMessage}
+                        </div>
+                    )}
                     </motion.div>
                 </motion.div>
                 )}
             </AnimatePresence>
+            
             </div>
         </div>
       </div>
